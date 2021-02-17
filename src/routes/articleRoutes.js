@@ -15,6 +15,7 @@ const {
   updateReview,
   deleteReview,
 } = require("../controllers/reviewControllers");
+const { authorize } = require("../controllers/authMiddleware");
 
 const routes = (app) => {
   app
@@ -31,9 +32,9 @@ const routes = (app) => {
   app
     .route("/articles/:articleId")
     .get(getArticleById)
-    .put(updateArticle)
-    .delete(deleteArticle)
-    .post(addNewReview);
+    .put(authorize, updateArticle)
+    .delete(authorize, deleteArticle)
+    .post(authorize, addNewReview);
 
   // GET /articles/:id/reviews => returns all the reviews for the specified article
   app.route("/articles/:articleId/reviews").get(getReviews);
@@ -47,12 +48,12 @@ const routes = (app) => {
   app
     .route("/articles/:articleId/reviews/:reviewId")
     .get(getReviewById)
-    .put(updateReview)
-    .delete(deleteReview);
+    .put(authorize, updateReview)
+    .delete(authorize, deleteReview);
 
-  app.route("/articles/:articleId/clap").post(updateClap);
+  app.route("/articles/:articleId/clap").post(authorize, updateClap);
 
-  app.route("/articles/:articleId/removeClap").post(removeClap);
+  app.route("/articles/:articleId/removeClap").post(authorize, removeClap);
 
   app.route("/articles/:articleId/calculateClap").get(calculateClap);
 };

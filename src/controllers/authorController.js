@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const AuthorSchema = require("../models/authorModel");
 const Author = mongoose.model("Author", AuthorSchema);
+const { authenticate } = require("./authTools");
 
 const getAuthors = async (req, res, next) => {
   const author = await Author.find({});
@@ -14,13 +15,14 @@ const getAuthors = async (req, res, next) => {
 };
 
 const addNewAuthor = async (req, res, next) => {
-  let newAuthor = new Author(req.body);
-  newAuthor.save((err, author) => {
-    if (err) {
-      res.send(err);
-    }
-    res.json(author);
-  });
+  try {
+    let newAuthor = new Author(req.body);
+    await newAuthor.save();
+    console.log("test", newAuthor.json());
+    res.status(201).send(newAuthor.json());
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const getAuthorById = async (req, res, next) => {
@@ -58,10 +60,39 @@ const deleteAuthor = (req, res, next) => {
   });
 };
 
+const login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await Author.findByCredentials(email, password);
+    console.log(user);
+    if (user === null) {
+      res.status(404).send({ error: "user not found" });
+    } else if (user.error) {
+      res.status(403).send(user);
+    } else {
+      const token = await authenticate(user);
+      res.status(201).send(token);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+const logout = async (req, res, next) => {
+  try {
+    res.send();
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
 module.exports = {
   getAuthors,
   getAuthorById,
   addNewAuthor,
   deleteAuthor,
   updateAuthor,
+  login,
+  logout,
 };

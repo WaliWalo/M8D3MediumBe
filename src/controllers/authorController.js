@@ -17,11 +17,12 @@ const getAuthors = async (req, res, next) => {
 const addNewAuthor = async (req, res, next) => {
   try {
     let newAuthor = new Author(req.body);
-    await newAuthor.save();
-    console.log("test", newAuthor.json());
-    res.status(201).send(newAuthor.json());
+    let author = await newAuthor.save();
+    console.log("test", author);
+    res.status(201).send(author);
   } catch (error) {
-    console.log(error);
+    error.httpStatusCode = 400;
+    next(error);
   }
 };
 

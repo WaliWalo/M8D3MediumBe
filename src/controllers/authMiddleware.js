@@ -6,7 +6,8 @@ const UserModel = mongoose.model("Author", AuthorSchema);
 
 const authorize = async (req, res, next) => {
   try {
-    const token = req.header("Authorization").replace("Bearer ", "");
+    // const token = req.header("Authorization").replace("Bearer ", "");
+    const token = req.cookies.accessToken;
     const decoded = await verifyJWT(token);
     const user = await UserModel.findById({
       _id: decoded._id,
@@ -20,8 +21,8 @@ const authorize = async (req, res, next) => {
     next();
   } catch (e) {
     console.log(e);
-    const err = new Error("Please authenticate");
-    err.httpStatusCode = 401;
+    const err = new Error({ error: "Please authenticate" });
+    err.httpStatusCode = 403;
     next(err);
   }
 };

@@ -5,27 +5,43 @@ const listEndpoints = require("express-list-endpoints");
 const mongoose = require("mongoose");
 const routes = require("./routes/articleRoutes");
 const authorRoutes = require("./routes/authorRoutes");
+const oauth = require("./controllers/oauth");
+const passport = require("passport");
+const cookieParser = require("cookie-parser");
 const {
   notFoundHandler,
+  forbiddenHandler,
   badRequestHandler,
   genericErrorHandler,
 } = require("./errorHandlers");
 
 const server = express();
-
+const whitelist = ["http://localhost:3000", "http://localhost:4000"];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true, //to allow cookies
+};
 const port = process.env.PORT;
-
+server.use(cors(corsOptions));
 // const staticFolderPath = join(__dirname, "../public");
 // server.use(express.static(staticFolderPath));
 server.use(express.json());
 
-server.use(cors());
+server.use(cookieParser());
+server.use(passport.initialize());
 routes(server);
 authorRoutes(server);
 
 // ERROR HANDLERS MIDDLEWARES
 
 server.use(badRequestHandler);
+server.use(forbiddenHandler);
 server.use(notFoundHandler);
 server.use(genericErrorHandler);
 

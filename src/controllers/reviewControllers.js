@@ -33,7 +33,7 @@ const addNewReview = (req, res) => {
     { runValidators: true, new: true, useFindAndModify: false },
     (err, review) => {
       if (err) {
-        res.send(err);
+        res.send({ err });
       }
       res.json(review);
     }

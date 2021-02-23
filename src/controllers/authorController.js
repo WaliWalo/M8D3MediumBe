@@ -72,7 +72,15 @@ const login = async (req, res, next) => {
       res.status(403).send(user);
     } else {
       const token = await authenticate(user);
-      res.status(201).send(token);
+      console.log(token.token);
+      res
+        .status(201)
+        .cookie("accessToken", token.token, {
+          httpOnly: false,
+        })
+        .send({ status: "ok" });
+      // res.status(200).redirect(process.env.FE_URL);
+      // res.status(201).send({ status: "ok" });
     }
   } catch (error) {
     next(error);
@@ -88,6 +96,18 @@ const logout = async (req, res, next) => {
   }
 };
 
+const googleAuthenticate = async (req, res, next) => {
+  try {
+    res.cookie("accessToken", req.user.tokens.token, {
+      httpOnly: false,
+    });
+
+    res.status(200).redirect(process.env.FE_URL);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAuthors,
   getAuthorById,
@@ -96,4 +116,5 @@ module.exports = {
   updateAuthor,
   login,
   logout,
+  googleAuthenticate,
 };

@@ -6,6 +6,13 @@ const badRequestHandler = (err, req, res, next) => {
   next(err);
 }; // 400
 
+const forbiddenHandler = (err, req, res, next) => {
+  if (err.httpStatusCode === 403) {
+    res.status(403).send({ error: err.error });
+  }
+  next(err);
+}; // 403
+
 const notFoundHandler = (err, req, res, next) => {
   if (err.httpStatusCode === 404) {
     res.status(404).send(err.message || "Resource not found!");
@@ -23,6 +30,7 @@ const genericErrorHandler = (err, req, res, next) => {
 
 module.exports = {
   badRequestHandler,
+  forbiddenHandler,
   notFoundHandler,
   genericErrorHandler,
 };
